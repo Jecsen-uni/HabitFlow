@@ -16,14 +16,14 @@ Core features:
 ## Technology Stack
 
 - Backend: Express.js, TypeScript, PostgreSQL.
-- Frontend: Flutter.
+- Frontend: simple browser dashboard and Flutter source.
 - Validation: Zod.
 - Database driver: node-postgres (`pg`).
 - Tests: Jest.
 
 ## Software Architecture
 
-The backend uses Clean Architecture with layered boundaries:
+The backend uses Clean Architecture with layered boundaries and microservice-style service boundaries:
 
 - `domain`: enterprise rules and interfaces. It contains entities and repository contracts.
 - `application`: use cases and business workflows. Services depend on repository interfaces, not PostgreSQL.
@@ -34,7 +34,9 @@ Dependency direction points inward:
 
 `presentation -> application -> domain <- infrastructure`
 
-The composition root is `src/app.ts`, where concrete PostgreSQL infrastructure is injected into the application service.
+The composition root is `src/app.ts`, where concrete infrastructure is injected into the application service. `DATABASE_URL=memory` injects `InMemoryHabitRepository`; PostgreSQL URLs inject `PostgresHabitRepository`.
+
+For detailed theory and file-by-file implementation mapping, see `docs/architecture-and-theory.md`.
 
 ## Design Patterns Applied
 
@@ -57,7 +59,7 @@ Base URL: `http://localhost:3000/api`
 - `GET /habits/stats`: get aggregate progress stats.
 - `GET /habits/:id`: get habit detail.
 - `PATCH /habits/:id`: update a habit.
-- `DELETE /habits/:id`: delete a habit.
+- `DELETE /habits/:id?effectiveDate=YYYY-MM-DD`: soft delete a habit from a selected date while preserving previous logs.
 - `POST /habits/:id/logs`: mark habit as completed.
 - `GET /habits/:id/logs`: list completion logs.
 
@@ -95,6 +97,8 @@ Tables:
 
 For a fast local demo, set `DATABASE_URL=memory`, install dependencies with `npm.cmd install`, and start the development server with `npm.cmd run dev`. The web dashboard is served from `http://localhost:3000`.
 
+Environment variables are documented in `.env.example`. Copy `.env.example` to `.env` for local development. The real `.env` file should not be committed.
+
 For PostgreSQL:
 
 1. Install PostgreSQL or run `docker compose up -d`.
@@ -111,3 +115,5 @@ Clean Architecture separates business rules from frameworks. In this project, Ex
 Repository Pattern hides SQL from the application layer. If the database changes from PostgreSQL to another storage engine, the service layer does not need to change as long as the repository interface remains stable.
 
 Dependency Injection improves maintainability by passing dependencies from the outside instead of creating them inside classes. This reduces coupling and supports testing.
+
+Microservice-style architecture in this project means the backend is designed around service boundaries, API contracts, environment configuration, and independent business capabilities. The current implementation is one deployable service for simplicity, but the Habit, Auth, and future Notification capabilities are separated enough to become independent microservices later.

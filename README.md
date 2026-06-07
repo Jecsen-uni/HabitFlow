@@ -1,6 +1,6 @@
 # Habit Tracker App
 
-Backend-focused habit tracker project using Express.js, PostgreSQL, Clean Architecture, and a simple Flutter frontend.
+Backend-focused habit tracker project using Express.js, PostgreSQL, Clean Architecture, microservice-style service boundaries, and a simple Flutter/browser frontend.
 
 ## Project Structure
 
@@ -13,6 +13,24 @@ src/
 mobile/             Simple Flutter frontend
 migrations/         PostgreSQL schema
 docs/               Documentation and presentation outline
+```
+
+## Architecture and Design Patterns
+
+The backend is structured as one deployable service with microservice-style boundaries:
+
+- REST API boundary for external clients.
+- Clean Architecture layers.
+- Repository Pattern for persistence abstraction.
+- Dependency Injection from `src/app.ts`.
+- Controller Pattern for HTTP request handling.
+- DTO/Validation Pattern with Zod.
+- Entity and Service Layer patterns for business rules.
+
+Full theory explanation and file-by-file implementation mapping:
+
+```text
+docs/architecture-and-theory.md
 ```
 
 ## Run Backend
@@ -40,6 +58,16 @@ npm.cmd run dev
 
 The API runs on `http://localhost:3000`.
 The browser dashboard is served from `http://localhost:3000`.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` for local configuration. The real `.env` file is ignored by Git.
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Use `DATABASE_URL=memory` for a fast demo without PostgreSQL, or use the PostgreSQL URL from `.env.example` for database-backed mode.
 
 ## Run Tests
 
