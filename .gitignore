@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+coverage/
+outputs/
+*.log
+.dart_tool/
+build/
+mobile/.metadata
+mobile/.packages

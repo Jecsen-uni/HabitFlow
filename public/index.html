@@ -1,0 +1,1484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Habit Tracker</title>
+    <style>
+      :root {
+        --bg: #eef3f0;
+        --surface: #ffffff;
+        --surface-2: #f7faf8;
+        --ink: #12252b;
+        --muted: #61747b;
+        --line: #dae4df;
+        --teal: #087e8b;
+        --teal-dark: #05636d;
+        --coral: #ed6a5a;
+        --sage: #6f9f7b;
+        --amber: #f0b84f;
+        --shadow: 0 18px 45px rgba(20, 45, 50, 0.10);
+      }
+      body.dark {
+        --bg: #050b12;
+        --surface: rgba(10, 20, 32, .88);
+        --surface-2: rgba(16, 32, 50, .82);
+        --ink: #e9fbff;
+        --muted: #9bb7c2;
+        --line: rgba(103, 232, 249, .18);
+        --teal: #15d3e6;
+        --teal-dark: #00a9c0;
+        --coral: #ff5d8f;
+        --sage: #7dffb2;
+        --amber: #ffd166;
+        --shadow: 0 24px 70px rgba(0, 224, 255, .14);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(8,126,139,.14), transparent 34rem),
+          linear-gradient(135deg, #f8fbf9 0%, var(--bg) 100%);
+        color: var(--ink);
+      }
+      body.dark {
+        background:
+          radial-gradient(circle at top left, rgba(21, 211, 230, .22), transparent 32rem),
+          radial-gradient(circle at bottom right, rgba(255, 93, 143, .18), transparent 30rem),
+          linear-gradient(135deg, #02050a 0%, var(--bg) 58%, #081827 100%);
+      }
+      button, input, select { font: inherit; }
+      button {
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease, opacity .18s ease;
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(8, 126, 139, .14);
+      }
+      button:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: .55;
+      }
+      .hidden { display: none !important; }
+      .auth-screen {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .auth-card {
+        width: min(920px, 100%);
+        display: grid;
+        grid-template-columns: 1.05fr .95fr;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+      .auth-hero {
+        padding: 46px;
+        color: white;
+        background: linear-gradient(145deg, #102931, #087e8b);
+      }
+      body.dark .auth-hero {
+        background:
+          linear-gradient(145deg, rgba(2, 6, 14, .96), rgba(6, 41, 58, .94)),
+          radial-gradient(circle at top right, rgba(21, 211, 230, .4), transparent 22rem);
+      }
+      .auth-hero h1 { font-size: 46px; margin: 0 0 16px; }
+      .auth-hero p { color: #d7eef0; line-height: 1.6; }
+      .auth-panel { padding: 42px; }
+      .auth-panel h2 { margin: 0 0 8px; font-size: 30px; }
+      .muted { color: var(--muted); }
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 252px 1fr;
+      }
+      nav {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 28px 18px;
+        color: white;
+        background: #102931;
+      }
+      body.dark nav {
+        background: rgba(3, 10, 20, .92);
+        border-right: 1px solid var(--line);
+        box-shadow: 12px 0 40px rgba(0, 0, 0, .22);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      .brand-mark, .nav-icon, .mini-icon {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255,255,255,.12);
+        font-weight: 800;
+      }
+      .brand-logo {
+        width: 42px;
+        height: 42px;
+        object-fit: cover;
+        border-radius: 50%;
+        background: rgba(255,255,255,.12);
+        box-shadow: 0 0 0 1px rgba(255,255,255,.18);
+      }
+      .nav-asset-icon {
+        width: 23px;
+        height: 23px;
+        object-fit: contain;
+        filter: invert(1);
+        opacity: .94;
+      }
+      .journey-symbol {
+        width: 21px;
+        height: 21px;
+        object-fit: contain;
+        filter: invert(1);
+      }
+      .asset-symbol {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+      }
+      .text-symbol {
+        font-weight: 900;
+        font-size: 16px;
+        line-height: 1;
+      }
+      .brand strong { display: block; font-size: 20px; }
+      .brand small { color: #a7c3c8; }
+      .nav-button {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+        margin-bottom: 8px;
+        padding: 12px;
+        border: 0;
+        border-radius: 12px;
+        text-align: left;
+        color: #d8eef1;
+        background: transparent;
+      }
+      .nav-button.active { background: var(--teal); color: white; }
+      body.dark .nav-button.active {
+        box-shadow: 0 0 24px rgba(21, 211, 230, .34);
+      }
+      .nav-footer {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 22px;
+        padding: 14px;
+        border-radius: 16px;
+        background: rgba(255,255,255,.08);
+        color: #d8eef1;
+        overflow-wrap: anywhere;
+      }
+      main {
+        width: min(1200px, 100%);
+        padding: 34px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+      h2 { margin: 0; font-size: clamp(28px, 4vw, 42px); }
+      h3 { margin: 0 0 12px; }
+      p { color: var(--muted); }
+      .primary, .secondary, .danger {
+        min-height: 44px;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 700;
+      }
+      .primary { border: 0; background: var(--teal); color: white; }
+      .primary:hover { background: var(--teal-dark); }
+      .secondary { border: 1px solid var(--line); background: white; color: var(--ink); }
+      .danger { border: 0; background: var(--coral); color: white; }
+      body.dark .primary:hover,
+      body.dark .secondary:hover,
+      body.dark .danger:hover {
+        box-shadow: 0 0 24px rgba(21, 211, 230, .22);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+      }
+      .panel {
+        background: rgba(255,255,255,.88);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 8px 24px rgba(20,45,50,.05);
+      }
+      body.dark .panel {
+        background: var(--surface);
+        border-color: var(--line);
+        backdrop-filter: blur(18px);
+      }
+      .span-4 { grid-column: span 4; }
+      .span-5 { grid-column: span 5; }
+      .span-6 { grid-column: span 6; }
+      .span-7 { grid-column: span 7; }
+      .span-12 { grid-column: span 12; }
+      .week {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .calendar-head {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .calendar-tools {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr) 52px;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+      }
+      .month-center {
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+        min-width: 0;
+        text-align: center;
+      }
+      .month-center strong {
+        font-size: 18px;
+      }
+      .month-arrow {
+        width: 52px;
+        min-width: 52px;
+        padding-inline: 0;
+        font-size: 22px;
+        line-height: 1;
+      }
+      .date-jump {
+        max-width: 155px;
+        min-height: 40px;
+        padding: 8px 10px;
+      }
+      .weekday-head {
+        min-height: auto;
+        padding: 0 4px 6px;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+      }
+      .day {
+        min-height: 88px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 9px;
+        text-align: left;
+        background: white;
+      }
+      .day.outside {
+        opacity: .42;
+      }
+      body.dark .day,
+      body.dark .habit,
+      body.dark input,
+      body.dark select,
+      body.dark .tab,
+      body.dark .choice,
+      body.dark .weekday,
+      body.dark .secondary {
+        background: rgba(10, 22, 34, .9);
+        color: var(--ink);
+        border-color: var(--line);
+      }
+      body.dark input,
+      body.dark select {
+        color-scheme: dark;
+        box-shadow: inset 0 0 0 1px rgba(155, 244, 255, .04);
+      }
+      body.dark input::placeholder {
+        color: rgba(155, 183, 194, .74);
+      }
+      body.dark input[type="date"]::-webkit-calendar-picker-indicator,
+      body.dark input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(1.8);
+      }
+      .day.selected { border-color: var(--teal); box-shadow: inset 0 0 0 2px var(--teal); }
+      .day.today { background: #eaf7f6; }
+      body.dark .day.today {
+        background: rgba(21, 211, 230, .14);
+      }
+      .day small { color: var(--muted); }
+      .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--teal);
+        margin-right: 4px;
+      }
+      .habit {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: white;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+      }
+      .habit:hover {
+        transform: translateY(-3px);
+        border-color: rgba(8, 126, 139, .36);
+        box-shadow: 0 14px 30px rgba(20, 45, 50, .10);
+      }
+      body.dark .habit:hover {
+        border-color: rgba(155, 244, 255, .34);
+        box-shadow: 0 0 28px rgba(21, 211, 230, .16);
+      }
+      .habit-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+      }
+      .mini-icon { width: 30px; height: 30px; color: var(--teal); background: #eaf7f6; }
+      body.dark .mini-icon {
+        color: #9bf4ff;
+        background: rgba(21, 211, 230, .18);
+        border: 1px solid rgba(155, 244, 255, .24);
+        box-shadow: 0 0 18px rgba(21, 211, 230, .18);
+      }
+      .symbol-mask {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        background: currentColor;
+        -webkit-mask: var(--symbol) center / contain no-repeat;
+        mask: var(--symbol) center / contain no-repeat;
+      }
+      .tag {
+        display: inline-block;
+        margin: 0 6px 6px 0;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #eef6f3;
+        color: var(--teal-dark);
+      }
+      body.dark .tag {
+        background: rgba(21, 211, 230, .12);
+        color: #9bf4ff;
+      }
+      .tabs, .choice-row, .day-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .tab, .choice, .weekday {
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+      .choice {
+        text-align: left;
+      }
+      .choice small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+      .tab.active, .choice.active, .weekday.active {
+        border-color: var(--teal);
+        background: var(--teal);
+        color: white;
+      }
+      .choice.active small {
+        color: rgba(255,255,255,.86);
+      }
+      form { display: grid; gap: 14px; }
+      label { display: grid; gap: 6px; font-weight: 700; }
+      input, select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: white;
+      }
+      .journey-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 234px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: white;
+        border: 0;
+        background-image:
+          linear-gradient(180deg, rgba(10, 28, 32, .12), rgba(10, 28, 32, .88)),
+          var(--journey-bg);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+      }
+      .journey-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 22px 46px rgba(20, 45, 50, .18);
+        filter: saturate(1.06);
+      }
+      body.dark .journey-card:hover {
+        box-shadow: 0 0 42px rgba(21, 211, 230, .18);
+      }
+      .journey-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(8,126,139,.36), transparent 48%);
+        pointer-events: none;
+      }
+      .journey-card > * {
+        position: relative;
+        z-index: 1;
+      }
+      .journey-card p,
+      .journey-card .muted {
+        color: rgba(255,255,255,.86);
+      }
+      .journey-card .mini-icon {
+        display: grid;
+        place-items: center;
+        margin-bottom: 14px;
+        color: white;
+        background: rgba(255,255,255,.18);
+        backdrop-filter: blur(8px);
+      }
+      body.dark .asset-symbol {
+        filter: invert(1) brightness(2.4) contrast(1.15) drop-shadow(0 0 5px rgba(155, 244, 255, .65));
+        opacity: .98;
+      }
+      .journey-card .primary {
+        background: rgba(255,255,255,.92);
+        color: var(--teal-dark);
+      }
+      .journey-card .primary:hover {
+        background: white;
+      }
+      .stat { font-size: 36px; font-weight: 900; margin-bottom: 4px; }
+      .stat-card .mini-icon,
+      .settings-card .mini-icon {
+        margin-bottom: 14px;
+      }
+      .settings-stack {
+        display: grid;
+        gap: 16px;
+      }
+      .settings-stack .secondary {
+        margin-top: 4px;
+        justify-self: start;
+      }
+      .achievement-card {
+        min-height: 230px;
+        overflow: hidden;
+        background:
+          linear-gradient(135deg, rgba(8, 126, 139, .12), rgba(111, 159, 123, .12)),
+          var(--surface);
+      }
+      body.dark .achievement-card {
+        background:
+          linear-gradient(135deg, rgba(21, 211, 230, .16), rgba(255, 93, 143, .10)),
+          var(--surface);
+      }
+      .achievement-card .stat {
+        margin-bottom: 0;
+      }
+      .achievement-summary {
+        min-height: 170px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+      .achievement-summary p {
+        margin-bottom: 0;
+      }
+      .achievement-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+      .achievement-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+        gap: 10px;
+      }
+      .achievement-badge {
+        min-height: 70px;
+        display: grid;
+        place-items: center;
+        gap: 4px;
+        padding: 10px 8px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255,255,255,.74);
+        color: var(--muted);
+        text-align: center;
+      }
+      .achievement-badge strong {
+        color: var(--ink);
+        font-size: 18px;
+      }
+      .achievement-badge small {
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .achievement-badge.unlocked {
+        border-color: rgba(8, 126, 139, .42);
+        background: linear-gradient(135deg, rgba(8, 126, 139, .16), rgba(240, 184, 79, .20));
+        color: var(--teal-dark);
+        box-shadow: 0 10px 24px rgba(20,45,50,.08);
+      }
+      body.dark .achievement-badge {
+        background: rgba(10, 22, 34, .78);
+      }
+      body.dark .achievement-badge.unlocked {
+        color: #9bf4ff;
+        border-color: rgba(155, 244, 255, .36);
+        background: linear-gradient(135deg, rgba(21, 211, 230, .20), rgba(255, 209, 102, .14));
+        box-shadow: 0 0 22px rgba(21, 211, 230, .14);
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .form-note {
+        margin: 0;
+        font-size: 13px;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: rgba(12, 31, 36, .55);
+      }
+      .modal {
+        width: min(720px, 100%);
+        max-height: min(92vh, 860px);
+        overflow: auto;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+      body.dark .modal {
+        background:
+          linear-gradient(145deg, rgba(9, 20, 34, .97), rgba(5, 12, 24, .97));
+        box-shadow: 0 28px 80px rgba(0, 224, 255, .16);
+      }
+      .modal-head {
+        position: sticky;
+        top: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 20px;
+        border-bottom: 1px solid var(--line);
+        background: white;
+      }
+      body.dark .modal-head {
+        background: rgba(7, 17, 29, .96);
+      }
+      .modal-body { padding: 20px; }
+      body.dark .modal-body label {
+        color: #dffbff;
+      }
+      body.dark .choice.active,
+      body.dark .weekday.active,
+      body.dark .tab.active {
+        background: linear-gradient(135deg, var(--teal), #0a8cff);
+        box-shadow: 0 0 20px rgba(21, 211, 230, .24);
+      }
+      body.dark .choice:hover:not(.active),
+      body.dark .weekday:hover:not(.active),
+      body.dark .tab:hover:not(.active) {
+        border-color: rgba(155, 244, 255, .42);
+        background: rgba(15, 38, 58, .96);
+      }
+      .bottom-nav { display: none; }
+      .mobile-topbar { display: none; }
+      @media (max-width: 900px) {
+        .auth-card { grid-template-columns: 1fr; }
+        .auth-hero { padding: 30px; }
+        .app { grid-template-columns: 1fr; padding: 74px 0 78px; }
+        nav { display: none; }
+        main { padding: 20px; }
+        .topbar { display: grid; }
+        .mobile-topbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 10;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          min-height: 62px;
+          padding: 12px 18px;
+          border-bottom: 1px solid var(--line);
+          background: rgba(255,255,255,.94);
+          box-shadow: 0 10px 28px rgba(20,45,50,.08);
+          backdrop-filter: blur(14px);
+        }
+        body.dark .mobile-topbar {
+          background: rgba(3, 10, 20, .92);
+          box-shadow: 0 12px 34px rgba(0,0,0,.24);
+        }
+        .mobile-user {
+          min-width: 0;
+          color: var(--ink);
+          font-weight: 800;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .mobile-logo {
+          width: 42px;
+          height: 42px;
+          flex: 0 0 auto;
+          object-fit: cover;
+          border-radius: 50%;
+          background: rgba(255,255,255,.12);
+          box-shadow: 0 0 0 1px var(--line);
+        }
+        .mobile-brand {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          color: var(--ink);
+          font-size: 16px;
+          font-weight: 900;
+          white-space: nowrap;
+        }
+        .span-4, .span-5, .span-6, .span-7, .span-12 { grid-column: span 12; }
+        .week { gap: 6px; }
+        .day { min-height: 64px; padding: 7px; }
+        .calendar-tools { grid-template-columns: 46px minmax(0, 1fr) 46px; gap: 8px; }
+        .month-arrow { width: 46px; min-width: 46px; }
+        .date-jump { max-width: 145px; }
+        .bottom-nav {
+          position: fixed;
+          left: 12px;
+          right: 12px;
+          bottom: 12px;
+          z-index: 10;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+          padding: 8px;
+          border: 1px solid var(--line);
+          border-radius: 20px;
+          background: rgba(255,255,255,.94);
+          box-shadow: var(--shadow);
+        }
+        .bottom-nav .nav-button {
+          justify-content: center;
+          margin: 0;
+          padding: 10px 6px;
+          color: var(--muted);
+        }
+        .bottom-nav .nav-asset-icon {
+          filter: none;
+        }
+        .bottom-nav .nav-button.active .nav-asset-icon,
+        body.dark .bottom-nav .nav-asset-icon {
+          filter: invert(1);
+        }
+        .bottom-nav .nav-button.active { color: white; }
+        .nav-label { display: none; }
+        .habit { align-items: stretch; flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <section id="auth-screen" class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-hero">
+          <div class="brand-mark">H</div>
+          <h1>Build routines with less friction.</h1>
+          <p>Track repeated habits, avoid negative habits, schedule one-time tasks, and review your journey from one clean dashboard.</p>
+        </div>
+        <div class="auth-panel">
+          <h2 id="auth-title">Login</h2>
+          <p class="muted">Use your account to enter the habit tracker demo.</p>
+          <form id="auth-form">
+            <label id="username-field" class="hidden">Username <input id="auth-username" autocomplete="username" placeholder="Your display name" /></label>
+            <label>Email <input id="auth-email" type="email" placeholder="you@example.com" required /></label>
+            <label>Password <input id="auth-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" required /></label>
+            <button class="primary" id="auth-submit">Login</button>
+          </form>
+          <p><button class="secondary" id="auth-toggle">Create a new account</button></p>
+          <p id="auth-message" class="muted"></p>
+        </div>
+      </div>
+    </section>
+
+    <div id="app-shell" class="app hidden">
+      <div id="mobile-topbar" class="mobile-topbar"></div>
+      <nav id="side-nav"></nav>
+      <main>
+        <section id="today-page"></section>
+        <section id="journey-page" class="hidden"></section>
+        <section id="history-page" class="hidden"></section>
+        <section id="profile-page" class="hidden"></section>
+      </main>
+      <div id="bottom-nav" class="bottom-nav"></div>
+    </div>
+    <div id="modal-root"></div>
+
+    <script>
+      const api = "/api/habits";
+      const authApi = "/api/auth";
+      const navItems = [
+        ["today", "assets/calendar-nav.png", "Calendar"],
+        ["journey", "assets/journey-transparent.png", "Journey"],
+        ["history", "assets/hsitory-transparent.png", "History"],
+        ["profile", "assets/profile.jpg", "Profile"]
+      ];
+      const state = {
+        page: "today",
+        selectedDate: formatDateLocal(new Date()),
+        calendarMonth: formatDateLocal(new Date()).slice(0, 7),
+        historyMonth: formatDateLocal(new Date()).slice(0, 7),
+        habitType: "regular",
+        selectedDays: [0, 1, 2, 3, 4, 5, 6],
+        editDays: [0, 1, 2, 3, 4, 5, 6],
+        editingHabit: null,
+        historyTab: "calendar",
+        authMode: "login",
+        session: JSON.parse(localStorage.getItem("habitSession") || "null"),
+        settings: JSON.parse(localStorage.getItem("habitSettings") || '{"notifications":true,"firstDay":"monday","language":"English","theme":"light"}')
+      };
+      const presets = {
+        everyday: { label: "Every day", days: [0, 1, 2, 3, 4, 5, 6] },
+        weekdays: { label: "Weekdays", days: [1, 2, 3, 4, 5] },
+        weekend: { label: "Weekend", days: [0, 6] },
+        mwf: { label: "Mon / Wed / Fri", days: [1, 3, 5] }
+      };
+      const journeyImages = {
+        "walk-everyday": "url('assets/walk.jpg')",
+        "sleep-on-time": "url('assets/sleep.jpg')",
+        meditation: "url('assets/meditation.jpg')",
+        "morning-routine": "url('assets/morning.jpg')",
+        "pray-routine": "url('assets/pray.jpg')"
+      };
+      const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const translations = {
+        English: {
+          todayTitle: "Calendar / Today",
+          todayDesc: "Plan today, inspect the month, and keep scheduled habits visible.",
+          newHabit: "+ New Habit",
+          calendar: "Calendar",
+          scheduled: "Scheduled",
+          noScheduled: "No scheduled habits for this day.",
+          editHabit: "Edit Habit",
+          createHabit: "Create New Habit",
+          habitTitle: "Habit title",
+          description: "Description",
+          startDate: "Start date",
+          endDate: "End date",
+          reminderTime: "Reminder time",
+          schedulePreset: "Schedule preset",
+          saveHabit: "Save Habit",
+          saveChanges: "Save Changes",
+          deleteThisDay: "Delete this day only",
+          deleteWholeHabit: "Delete whole repeated habit",
+          deleteNote: "Deleting this day hides the habit only for the selected date. Deleting the whole habit removes the repeated habit.",
+          journey: "Journey",
+          journeyDesc: "Recommended plans you can apply immediately.",
+          benefit: "Benefit",
+          applyPlan: "Apply Plan",
+          history: "History",
+          historyDesc: "Review calendar progress, active habits, and achievements.",
+          currentStreak: "Current streak",
+          finishedHabits: "Finished habits",
+          completionRate: "Completion rate",
+          allHabits: "All Habits",
+          achievements: "Achievements",
+          amountFinished: "Amount of finished habits",
+          perfectDays: "Perfect days",
+          bestStreak: "Best day streak",
+          profile: "Profile",
+          profileDesc: "Notification and general settings.",
+          notificationSettings: "Notification Settings",
+          generalSettings: "General Settings",
+          habitReminders: "Habit reminders",
+          firstDayWeek: "First day of week",
+          language: "Language",
+          theme: "Theme",
+          logout: "Logout",
+          resetSettings: "Reset local settings",
+          done: "Done",
+          pending: "Pending",
+          complete: "Complete",
+          markFailed: "Mark Failed",
+          unmarkFailed: "Unmark Failed",
+          futureLocked: "Available on scheduled date",
+          futureLockedAlert: "Future regular and negative habits cannot be completed before their date.",
+          dateDetails: "Date Details",
+          doneOnDate: "Done on this date",
+          noDoneOnDate: "No habits were completed on this date.",
+          unlocked: "Unlocked",
+          locked: "Locked",
+          clear: "Clear"
+        },
+        Indonesian: {
+          todayTitle: "Kalender / Hari Ini",
+          todayDesc: "Rencanakan hari ini, cek bulan berjalan, dan lihat kebiasaan yang terjadwal.",
+          newHabit: "+ Kebiasaan Baru",
+          calendar: "Kalender",
+          scheduled: "Terjadwal",
+          noScheduled: "Tidak ada kebiasaan terjadwal untuk tanggal ini.",
+          editHabit: "Edit Kebiasaan",
+          createHabit: "Buat Kebiasaan Baru",
+          habitTitle: "Nama kebiasaan",
+          description: "Deskripsi",
+          startDate: "Tanggal mulai",
+          endDate: "Tanggal akhir",
+          reminderTime: "Waktu pengingat",
+          schedulePreset: "Preset jadwal",
+          saveHabit: "Simpan Kebiasaan",
+          saveChanges: "Simpan Perubahan",
+          deleteThisDay: "Hapus hanya hari ini",
+          deleteWholeHabit: "Hapus seluruh kebiasaan berulang",
+          deleteNote: "Hapus hari ini hanya menyembunyikan kebiasaan pada tanggal terpilih. Hapus seluruh kebiasaan akan menghapus jadwal berulang.",
+          journey: "Perjalanan",
+          journeyDesc: "Paket kebiasaan rekomendasi yang bisa langsung dipakai.",
+          benefit: "Manfaat",
+          applyPlan: "Pakai Paket",
+          history: "Riwayat",
+          historyDesc: "Tinjau progres kalender, kebiasaan aktif, dan pencapaian.",
+          currentStreak: "Streak saat ini",
+          finishedHabits: "Kebiasaan selesai",
+          completionRate: "Tingkat selesai",
+          allHabits: "Semua Kebiasaan",
+          achievements: "Pencapaian",
+          amountFinished: "Jumlah kebiasaan selesai",
+          perfectDays: "Hari sempurna",
+          bestStreak: "Streak hari terbaik",
+          profile: "Profil",
+          profileDesc: "Pengaturan notifikasi dan umum.",
+          notificationSettings: "Pengaturan Notifikasi",
+          generalSettings: "Pengaturan Umum",
+          habitReminders: "Pengingat kebiasaan",
+          firstDayWeek: "Hari pertama minggu",
+          language: "Bahasa",
+          theme: "Tema",
+          logout: "Keluar",
+          resetSettings: "Reset pengaturan lokal",
+          done: "Selesai",
+          pending: "Belum selesai",
+          complete: "Selesaikan",
+          markFailed: "Tandai gagal",
+          unmarkFailed: "Batalkan gagal",
+          futureLocked: "Tersedia pada tanggal jadwal",
+          futureLockedAlert: "Kebiasaan regular dan negatif di masa depan tidak bisa diselesaikan sebelum tanggalnya.",
+          dateDetails: "Detail Tanggal",
+          doneOnDate: "Selesai pada tanggal ini",
+          noDoneOnDate: "Tidak ada kebiasaan yang selesai pada tanggal ini.",
+          unlocked: "Terbuka",
+          locked: "Terkunci",
+          clear: "Kosong"
+        }
+      };
+      const historyTabs = [
+        ["calendar", "Calendar"],
+        ["all habits", "All Habits"],
+        ["achievements", "Achievements"]
+      ];
+      const streakMilestones = [3, 7, 14, 30, 50, 100, 200, 250, 300, 365];
+      const finishedHabitMilestones = [1, 3, 5, 10, 20, 30, 50, 100, 200, 300, 500, 750, 1000];
+      function t(key) {
+        return (translations[state.settings.language] || translations.English)[key] || key;
+      }
+
+      function page(id) { return document.querySelector(`#${id}-page`); }
+      function formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+      function today() { return formatDateLocal(new Date()); }
+      function isFutureDate(date) { return date > today(); }
+      function canCompleteOnSelectedDate(type) { return type === "todo" || !isFutureDate(state.selectedDate); }
+      function formatLong(date) {
+        return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+      }
+      function iconFor(type) {
+        return type === "negative" ? "!" : type === "todo" ? "1" : "+";
+      }
+      async function getJson(url) {
+        const response = await fetch(url, authHeaders());
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error?.message || "Request failed");
+        return body.data;
+      }
+      async function postJson(url, body = {}) {
+        const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", ...authHeaders().headers }, body: JSON.stringify(body) });
+        const payload = response.status === 204 ? null : await response.json();
+        if (!response.ok) throw new Error(payload.error?.message || "Request failed");
+        return payload?.data ?? null;
+      }
+      async function patchJson(url, body = {}) {
+        const response = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json", ...authHeaders().headers }, body: JSON.stringify(body) });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error?.message || "Request failed");
+        return payload.data;
+      }
+      async function deleteRequest(url) {
+        const response = await fetch(url, { method: "DELETE", ...authHeaders() });
+        if (!response.ok) {
+          const payload = await response.json();
+          throw new Error(payload.error?.message || "Request failed");
+        }
+      }
+      function authHeaders() {
+        return state.session?.token ? { headers: { Authorization: `Bearer ${state.session.token}` } } : {};
+      }
+      function monthLabel(month) {
+        return new Date(`${month}-01T00:00:00`).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+      }
+      function shiftMonth(delta) {
+        const [year, month] = state.calendarMonth.split("-").map(Number);
+        const cursor = new Date(year, month - 1 + delta, 1);
+        state.calendarMonth = formatDateLocal(cursor).slice(0, 7);
+        return renderToday();
+      }
+      function jumpToDate(date) {
+        state.selectedDate = date;
+        state.calendarMonth = date.slice(0, 7);
+        return renderToday();
+      }
+      function calendarDates(month) {
+        const [year, monthNumber] = month.split("-").map(Number);
+        const first = new Date(year, monthNumber - 1, 1);
+        const gridStart = new Date(first);
+        gridStart.setDate(first.getDate() - first.getDay());
+        const dates = [];
+        for (let index = 0; index < 42; index += 1) {
+          const cursor = new Date(gridStart);
+          cursor.setDate(gridStart.getDate() + index);
+          dates.push({
+            date: formatDateLocal(cursor),
+            currentMonth: cursor.getMonth() === monthNumber - 1
+          });
+        }
+        return dates;
+      }
+
+      function renderShell() {
+        const buttons = navItems.map(([pageName, icon, label]) => `
+          <button class="nav-button ${state.page === pageName ? "active" : ""}" data-page="${pageName}">
+            <span class="nav-icon"><img class="nav-asset-icon" src="${icon}" alt="" /></span><span class="nav-label">${label}</span>
+          </button>
+        `).join("");
+        const logo = state.settings.theme === "dark" ? "assets/habitflow_logo_dark_circle.png" : "assets/habitflow_logo_light_circle.png";
+        const userName = state.session?.user.username || state.session?.user.email || "";
+        document.querySelector("#side-nav").innerHTML = `
+          <div class="brand"><img class="brand-logo" src="${logo}" alt="HabitFlow logo" /><div><strong>HabitFlow</strong><small>${userName}</small></div></div>
+          ${buttons}
+          <div class="nav-footer"><strong>Signed in</strong><br>${state.session?.user.email || ""}</div>
+        `;
+        document.querySelector("#mobile-topbar").innerHTML = `
+          <div class="mobile-user">${escapeHtml(userName)}</div>
+          <div class="mobile-brand"><span>HabitFlow</span><img class="mobile-logo" src="${logo}" alt="HabitFlow logo" /></div>
+        `;
+        document.querySelector("#bottom-nav").innerHTML = buttons;
+        document.querySelectorAll(".nav-button").forEach((button) => {
+          button.addEventListener("click", async () => {
+            state.page = button.dataset.page;
+            await render();
+          });
+        });
+      }
+
+      async function renderToday() {
+        const [dayHabits, history] = await Promise.all([
+          getJson(`${api}/day?date=${state.selectedDate}`),
+          getJson(`${api}/history?month=${state.calendarMonth}`)
+        ]);
+        const daysByDate = Object.fromEntries(history.days.map((day) => [day.date, day]));
+        page("today").innerHTML = `
+          <div class="topbar">
+            <div>
+              <h2>${formatLong(state.selectedDate)}</h2>
+              <p>${t("todayDesc")}</p>
+            </div>
+            <button class="primary" onclick="openCreateHabit()">${t("newHabit")}</button>
+          </div>
+          <div class="grid">
+            <section class="panel span-7">
+              <div class="calendar-head">
+                <h3>${t("calendar")}</h3>
+                <div class="calendar-tools">
+                  <button class="secondary month-arrow" onclick="shiftMonth(-1)" aria-label="Previous month">&lt;</button>
+                  <div class="month-center">
+                    <strong>${monthLabel(state.calendarMonth)}</strong>
+                    <input class="date-jump" type="date" value="${state.selectedDate}" onchange="jumpToDate(this.value)" />
+                  </div>
+                  <button class="secondary month-arrow" onclick="shiftMonth(1)" aria-label="Next month">&gt;</button>
+                </div>
+              </div>
+              <div class="week">
+                ${weekdayLabels.map((day) => `<div class="weekday-head">${day}</div>`).join("")}
+                ${calendarDates(state.calendarMonth).map(({ date, currentMonth }) => {
+                  const summary = daysByDate[date] ?? { scheduled: 0, finished: 0 };
+                  return `<button class="day ${currentMonth ? "" : "outside"} ${date === state.selectedDate ? "selected" : ""} ${date === today() ? "today" : ""}" onclick="selectDate('${date}')">
+                    <strong>${Number(date.slice(8))}</strong><br>
+                    <small>${summary.scheduled ? `<span class="dot"></span>${summary.finished}/${summary.scheduled}` : t("clear")}</small>
+                  </button>`;
+                }).join("")}
+              </div>
+            </section>
+            <section class="panel span-5">
+              <h3>${t("scheduled")}</h3>
+              ${dayHabits.length ? dayHabits.map(habitCard).join("") : `<p>${t("noScheduled")}</p>`}
+            </section>
+          </div>
+        `;
+      }
+
+      function habitCard(habit) {
+        const isFailedNegative = habit.type === "negative" && habit.log?.status === "failed";
+        const action = isFailedNegative ? t("unmarkFailed") : habit.type === "negative" ? t("markFailed") : t("complete");
+        const status = habit.completed ? t("done") : t("pending");
+        const canComplete = canCompleteOnSelectedDate(habit.type);
+        const buttonText = canComplete ? action : t("futureLocked");
+        const disabled = canComplete ? "" : "disabled";
+        return `<article class="habit" onclick="openEditHabit('${habit.id}')">
+          <div>
+            <div class="habit-title"><span class="mini-icon">${iconFor(habit.type)}</span><strong>${habit.title}</strong></div>
+            <span class="tag">${habit.type}</span><span class="tag">${status}</span>${habit.reminderTime ? `<span class="tag">${habit.reminderTime}</span>` : ""}
+          </div>
+          <button class="${habit.completed || !canComplete ? "secondary" : "primary"}" ${disabled} title="${buttonText}" onclick="event.stopPropagation(); completeHabit('${habit.id}', '${habit.type}', '${isFailedNegative ? "completed" : habit.type === "negative" ? "failed" : "completed"}')">${buttonText}</button>
+        </article>`;
+      }
+
+      function openCreateHabit() {
+        state.habitType = "regular";
+        state.selectedDays = [0, 1, 2, 3, 4, 5, 6];
+        renderCreateModal();
+      }
+      function closeModal() { document.querySelector("#modal-root").innerHTML = ""; }
+      function renderCreateModal() {
+        document.querySelector("#modal-root").innerHTML = `
+          <div class="modal-backdrop">
+            <section class="modal">
+              <div class="modal-head"><h3>${t("createHabit")}</h3><button class="secondary" onclick="closeModal()">Close</button></div>
+              <div class="modal-body">
+                <div class="choice-row">
+                  ${[
+                    ["regular", "Regular", "Repeated habit"],
+                    ["negative", "Negative", "Starts complete; mark failed"],
+                    ["todo", "One Time Todo", "Reminder for one quest"]
+                  ].map(([type, label, desc]) => `<button type="button" class="choice ${state.habitType === type ? "active" : ""}" onclick="setHabitType('${type}')"><strong>${label}</strong><br><small>${desc}</small></button>`).join("")}
+                </div>
+                <form id="create-form">
+                  <label>${t("habitTitle")} <input id="habit-title" required placeholder="Example: Walk for 20 minutes" /></label>
+                  <label>${t("description")} <input id="habit-description" placeholder="Short purpose or note" /></label>
+                  <div class="grid">
+                    <label class="span-6">${t("startDate")} <input id="habit-date" type="date" value="${state.selectedDate}" /></label>
+                    <label class="span-6">${t("endDate")} <input id="habit-end-date" type="date" /></label>
+                    <label class="span-6">${t("reminderTime")} <input id="habit-time" type="time" /></label>
+                  </div>
+                  <label>${t("schedulePreset")}
+                    <select id="habit-preset" onchange="applyPreset(this.value)">
+                      <option value="">Custom</option>
+                      ${Object.entries(presets).map(([key, preset]) => `<option value="${key}">${preset.label}</option>`).join("")}
+                    </select>
+                  </label>
+                  <div class="day-picker">
+                    ${weekdayLabels.map((day, index) => `<button type="button" class="weekday ${state.selectedDays.includes(index) ? "active" : ""}" onclick="toggleWeekday(${index})">${day}</button>`).join("")}
+                  </div>
+                  <button class="primary">${t("saveHabit")}</button>
+                </form>
+              </div>
+            </section>
+          </div>
+        `;
+        document.querySelector("#create-form").addEventListener("submit", createHabit);
+      }
+      function setHabitType(type) { state.habitType = type; renderCreateModal(); }
+      function applyPreset(key) {
+        if (presets[key]) {
+          state.selectedDays = presets[key].days;
+          renderCreateModal();
+          document.querySelector("#habit-preset").value = key;
+        }
+      }
+      function toggleWeekday(day) {
+        state.selectedDays = state.selectedDays.includes(day) ? state.selectedDays.filter((item) => item !== day) : [...state.selectedDays, day].sort();
+        renderCreateModal();
+      }
+      async function createHabit(event) {
+        event.preventDefault();
+        const startDate = document.querySelector("#habit-date").value || state.selectedDate;
+        await postJson(api, {
+          title: document.querySelector("#habit-title").value,
+          description: document.querySelector("#habit-description").value || null,
+          type: state.habitType,
+          frequency: "daily",
+          targetCount: 1,
+          scheduleDays: state.habitType === "todo" ? [new Date(`${startDate}T00:00:00`).getDay()] : state.selectedDays,
+          startDate,
+          endDate: document.querySelector("#habit-end-date").value || null,
+          reminderTime: document.querySelector("#habit-time").value || null,
+          presetKey: document.querySelector("#habit-preset").value || null
+        });
+        closeModal();
+        await renderToday();
+      }
+      async function openEditHabit(id) {
+        const habit = await getJson(`${api}/${id}`);
+        state.editingHabit = habit;
+        state.editDays = [...habit.scheduleDays];
+        renderEditModal();
+      }
+      function renderEditModal() {
+        const habit = state.editingHabit;
+        if (!habit) return;
+        document.querySelector("#modal-root").innerHTML = `
+          <div class="modal-backdrop">
+            <section class="modal">
+              <div class="modal-head"><h3>${t("editHabit")}</h3><button class="secondary" onclick="closeModal()">Close</button></div>
+              <div class="modal-body">
+                <form id="edit-form">
+                  <label>${t("habitTitle")} <input id="edit-title" required value="${escapeHtml(habit.title)}" /></label>
+                  <label>${t("description")} <input id="edit-description" value="${escapeHtml(habit.description || "")}" /></label>
+                  <div class="grid">
+                    <label class="span-6">${t("startDate")} <input id="edit-start-date" type="date" value="${habit.startDate}" /></label>
+                    <label class="span-6">${t("endDate")} <input id="edit-end-date" type="date" value="${habit.endDate || ""}" /></label>
+                    <label class="span-6">${t("reminderTime")} <input id="edit-time" type="time" value="${habit.reminderTime || ""}" /></label>
+                  </div>
+                  <div class="day-picker">
+                    ${weekdayLabels.map((day, index) => `<button type="button" class="weekday ${state.editDays.includes(index) ? "active" : ""}" onclick="toggleEditWeekday(${index})">${day}</button>`).join("")}
+                  </div>
+                  <p class="form-note muted">${t("deleteNote")}</p>
+                  <div class="modal-actions">
+                    <button class="primary">${t("saveChanges")}</button>
+                    <button type="button" class="secondary" onclick="deleteSingleOccurrence('${habit.id}')">${t("deleteThisDay")}</button>
+                    <button type="button" class="danger" onclick="deleteWholeHabit('${habit.id}')">${t("deleteWholeHabit")}</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+        `;
+        document.querySelector("#edit-form").addEventListener("submit", updateHabit);
+      }
+      function toggleEditWeekday(day) {
+        state.editDays = state.editDays.includes(day) ? state.editDays.filter((item) => item !== day) : [...state.editDays, day].sort();
+        renderEditModal();
+      }
+      async function updateHabit(event) {
+        event.preventDefault();
+        const habit = state.editingHabit;
+        await patchJson(`${api}/${habit.id}`, {
+          title: document.querySelector("#edit-title").value,
+          description: document.querySelector("#edit-description").value || null,
+          startDate: document.querySelector("#edit-start-date").value,
+          endDate: document.querySelector("#edit-end-date").value || null,
+          reminderTime: document.querySelector("#edit-time").value || null,
+          scheduleDays: state.editDays
+        });
+        closeModal();
+        await render();
+      }
+      async function deleteSingleOccurrence(id) {
+        await postJson(`${api}/${id}/logs`, { completedOn: state.selectedDate, status: "skipped" });
+        closeModal();
+        await render();
+      }
+      async function deleteWholeHabit(id) {
+        await deleteRequest(`${api}/${id}?effectiveDate=${state.selectedDate}`);
+        closeModal();
+        await render();
+      }
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+      async function completeHabit(id, type, nextStatus = "completed") {
+        if (!canCompleteOnSelectedDate(type)) {
+          alert(t("futureLockedAlert"));
+          return;
+        }
+        await postJson(`${api}/${id}/logs`, { completedOn: state.selectedDate, status: nextStatus });
+        await render();
+      }
+      async function selectDate(date) {
+        state.selectedDate = date;
+        state.calendarMonth = date.slice(0, 7);
+        await renderToday();
+      }
+
+      async function renderJourney() {
+        const journeys = await getJson(`${api}/journeys`);
+        page("journey").innerHTML = `
+          <div class="topbar"><div><h2>${t("journey")}</h2><p>${t("journeyDesc")}</p></div></div>
+          <div class="grid">
+            ${journeys.map((journey) => `<section class="panel span-4 journey-card" style="--journey-bg: ${journeyImages[journey.id] || "linear-gradient(135deg, #087e8b, #102931)"}">
+              <div><div class="mini-icon"><img class="journey-symbol" src="assets/journey-transparent.png" alt="" /></div><h3>${journey.title}</h3><p><strong>${t("benefit")}:</strong> ${journey.benefit}</p><p>${journey.description}</p></div>
+              <button class="primary" onclick="applyJourneyPlan('${journey.id}')">${t("applyPlan")}</button>
+            </section>`).join("")}
+          </div>`;
+      }
+      async function applyJourneyPlan(id) {
+        await postJson(`${api}/journeys/${id}/apply`);
+        state.page = "today";
+        await render();
+      }
+
+      async function renderHistory() {
+        const history = await getJson(`${api}/history?month=${state.historyMonth}`);
+        page("history").innerHTML = `
+          <div class="topbar"><div><h2>${t("history")}</h2><p>${t("historyDesc")}</p></div></div>
+          <div class="tabs">${historyTabs.map(([tab, label]) => `<button class="tab ${state.historyTab === tab ? "active" : ""}" onclick="setHistoryTab('${tab}')">${t(label === "Calendar" ? "calendar" : label === "All Habits" ? "allHabits" : "achievements")}</button>`).join("")}</div>
+          <div id="history-content"></div>`;
+        renderHistoryContent(history);
+      }
+      function renderHistoryContent(history) {
+        const target = document.querySelector("#history-content");
+        if (state.historyTab === "calendar") {
+          const daysByDate = Object.fromEntries(history.days.map((day) => [day.date, day]));
+          target.innerHTML = `<div class="grid">
+            <section class="panel span-4 stat-card"><div class="mini-icon"><img class="asset-symbol" src="assets/day-streaks-transparent.png" alt="" /></div><div class="stat">${history.currentStreak}</div><p>${t("currentStreak")}</p></section>
+            <section class="panel span-4 stat-card"><div class="mini-icon"><img class="asset-symbol" src="assets/finished-transparent.png" alt="" /></div><div class="stat">${history.finishedHabits}</div><p>${t("finishedHabits")}</p></section>
+            <section class="panel span-4 stat-card"><div class="mini-icon"><span class="text-symbol">%</span></div><div class="stat">${history.completionRate}%</div><p>${t("completionRate")}</p></section>
+            <section class="panel span-12">
+              <div class="calendar-head">
+                <h3>${t("calendar")}</h3>
+                <div class="calendar-tools">
+                  <button class="secondary month-arrow" onclick="shiftHistoryMonth(-1)" aria-label="Previous month">&lt;</button>
+                  <div class="month-center">
+                    <strong>${monthLabel(state.historyMonth)}</strong>
+                    <input class="date-jump" type="date" value="${state.selectedDate}" onchange="selectHistoryDate(this.value)" />
+                  </div>
+                  <button class="secondary month-arrow" onclick="shiftHistoryMonth(1)" aria-label="Next month">&gt;</button>
+                </div>
+              </div>
+              <div class="week">
+                ${weekdayLabels.map((day) => `<div class="weekday-head">${day}</div>`).join("")}
+                ${calendarDates(state.historyMonth).map(({ date, currentMonth }) => {
+                  const day = daysByDate[date] ?? { scheduled: 0, finished: 0, completionRate: 100 };
+                  return `<button class="day ${currentMonth ? "" : "outside"} ${date === state.selectedDate ? "selected" : ""} ${date === today() ? "today" : ""}" onclick="openHistoryDate('${date}')">
+                    <strong>${Number(date.slice(8))}</strong><br>
+                    <small>${currentMonth ? `${day.finished}/${day.scheduled}` : t("clear")}</small><br>
+                    <small>${currentMonth ? `${day.completionRate}%` : ""}</small>
+                  </button>`;
+                }).join("")}
+              </div>
+            </section>
+          </div>`;
+          return;
+        }
+        if (state.historyTab === "all habits") {
+          target.innerHTML = `<section class="panel">${history.allHabits.length ? history.allHabits.map((habit) => `<article class="habit" onclick="openEditHabit('${habit.id}')"><div><div class="habit-title"><span class="mini-icon">${iconFor(habit.type)}</span><strong>${habit.title}</strong></div><span class="tag">${habit.type}</span><span class="tag">${habit.scheduleDays.map((day) => weekdayLabels[day]).join(", ")}</span></div></article>`).join("") : "<p>No active habits.</p>"}</section>`;
+          return;
+        }
+        target.innerHTML = `<div class="grid">
+          <section class="panel span-4 achievement-card achievement-summary"><div class="stat">${history.achievements.finishedHabits}</div><p>${t("amountFinished")}</p></section>
+          <section class="panel span-4 achievement-card achievement-summary"><div class="stat">${history.achievements.perfectDays}</div><p>${t("perfectDays")}</p></section>
+          <section class="panel span-4 achievement-card achievement-summary"><div class="stat">${history.achievements.dayStreaks}</div><p>${t("bestStreak")}</p></section>
+          ${achievementSet(t("bestStreak"), history.achievements.dayStreaks, streakMilestones, "span-12")}
+          ${achievementSet(t("perfectDays"), history.achievements.perfectDays, streakMilestones, "span-12")}
+          ${achievementSet(t("amountFinished"), history.achievements.finishedHabits, finishedHabitMilestones, "span-12")}
+        </div>`;
+      }
+      function achievementSet(title, current, milestones, spanClass) {
+        return `<section class="panel ${spanClass} achievement-card">
+          <div class="achievement-head">
+            <div><h3>${title}</h3><p>${current} / ${milestones[milestones.length - 1]}</p></div>
+            <div class="stat">${current}</div>
+          </div>
+          <div class="achievement-grid">
+            ${milestones.map((goal) => `<div class="achievement-badge ${current >= goal ? "unlocked" : ""}">
+              <strong>${goal}</strong>
+              <small>${current >= goal ? t("unlocked") : t("locked")}</small>
+            </div>`).join("")}
+          </div>
+        </section>`;
+      }
+      async function setHistoryTab(tab) { state.historyTab = tab; await renderHistory(); }
+      async function shiftHistoryMonth(delta) {
+        const [year, month] = state.historyMonth.split("-").map(Number);
+        const cursor = new Date(year, month - 1 + delta, 1);
+        state.historyMonth = formatDateLocal(cursor).slice(0, 7);
+        await renderHistory();
+      }
+      async function selectHistoryDate(date) {
+        state.selectedDate = date;
+        state.historyMonth = date.slice(0, 7);
+        await renderHistory();
+      }
+      async function openHistoryDate(date) {
+        state.selectedDate = date;
+        state.historyMonth = date.slice(0, 7);
+        const detail = await getJson(`${api}/history/day?date=${date}`);
+        await renderHistory();
+        renderHistoryDateModal(detail);
+      }
+      function renderHistoryDateModal(detail) {
+        const completed = detail.habits.filter((habit) => habit.completed);
+        document.querySelector("#modal-root").innerHTML = `
+          <div class="modal-backdrop">
+            <section class="modal">
+              <div class="modal-head"><h3>${t("dateDetails")}</h3><button class="secondary" onclick="closeModal()">Close</button></div>
+              <div class="modal-body">
+                <h3>${formatLong(detail.date)}</h3>
+                <p>${detail.finished}/${detail.scheduled} ${t("doneOnDate").toLowerCase()}</p>
+                ${completed.length ? completed.map((habit) => `<article class="habit" onclick="openEditHabit('${habit.id}')">
+                  <div>
+                    <div class="habit-title"><span class="mini-icon">${iconFor(habit.type)}</span><strong>${escapeHtml(habit.title)}</strong></div>
+                    <span class="tag">${habit.type}</span>${habit.reminderTime ? `<span class="tag">${habit.reminderTime}</span>` : ""}
+                  </div>
+                  <span class="tag">${t("done")}</span>
+                </article>`).join("") : `<p>${t("noDoneOnDate")}</p>`}
+              </div>
+            </section>
+          </div>
+        `;
+      }
+
+      function renderProfile() {
+        page("profile").innerHTML = `
+          <div class="topbar"><div><h2>${t("profile")}</h2><p>${t("profileDesc")}</p></div><button class="danger" onclick="logout()">${t("logout")}</button></div>
+          <div class="grid">
+            <section class="panel span-6 settings-card"><div class="mini-icon"><img class="asset-symbol" src="assets/notification-transparent.png" alt="" /></div><h3>${t("notificationSettings")}</h3><label>${t("habitReminders")}<select id="notifications"><option value="true">Enabled</option><option value="false">Disabled</option></select></label></section>
+            <section class="panel span-6 settings-card"><div class="mini-icon"><img class="asset-symbol" src="assets/setting-transparent.png" alt="" /></div><h3>${t("generalSettings")}</h3><div class="settings-stack"><label>${t("theme")}<select id="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label><label>${t("firstDayWeek")}<select id="first-day"><option>Monday</option><option>Sunday</option></select></label><label>${t("language")}<select id="language"><option>English</option><option>Indonesian</option></select></label><button class="secondary" onclick="resetLocalSettings()">${t("resetSettings")}</button></div></section>
+          </div>`;
+        document.querySelector("#notifications").value = String(state.settings.notifications);
+        document.querySelector("#theme").value = state.settings.theme || "light";
+        document.querySelector("#first-day").value = state.settings.firstDay === "sunday" ? "Sunday" : "Monday";
+        document.querySelector("#language").value = state.settings.language;
+        document.querySelectorAll("#notifications,#theme,#first-day,#language").forEach((input) => input.addEventListener("change", saveSettings));
+      }
+      function saveSettings() {
+        state.settings = {
+          notifications: document.querySelector("#notifications").value === "true",
+          theme: document.querySelector("#theme").value,
+          firstDay: document.querySelector("#first-day").value.toLowerCase(),
+          language: document.querySelector("#language").value
+        };
+        localStorage.setItem("habitSettings", JSON.stringify(state.settings));
+        applyTheme();
+        renderShell();
+        render();
+      }
+      function resetLocalSettings() {
+        localStorage.removeItem("habitSettings");
+        state.settings = { notifications: true, firstDay: "monday", language: "English", theme: "light" };
+        applyTheme();
+        renderProfile();
+      }
+      function logout() {
+        localStorage.removeItem("habitSession");
+        state.session = null;
+        showAuth();
+      }
+
+      function updateNav() {
+        renderShell();
+        ["today", "journey", "history", "profile"].forEach((name) => page(name).classList.toggle("hidden", state.page !== name));
+      }
+      async function render() {
+        applyTheme();
+        updateNav();
+        if (state.page === "today") await renderToday();
+        if (state.page === "journey") await renderJourney();
+        if (state.page === "history") await renderHistory();
+        if (state.page === "profile") renderProfile();
+      }
+      function showAuth() {
+        applyTheme();
+        document.querySelector("#auth-screen").classList.remove("hidden");
+        document.querySelector("#app-shell").classList.add("hidden");
+      }
+      async function showApp() {
+        document.querySelector("#auth-screen").classList.add("hidden");
+        document.querySelector("#app-shell").classList.remove("hidden");
+        await render();
+      }
+      function applyTheme() {
+        document.body.classList.toggle("dark", state.settings.theme === "dark");
+      }
+      function setAuthMode(mode) {
+        state.authMode = mode;
+        document.querySelector("#auth-title").textContent = mode === "login" ? "Login" : "Register";
+        document.querySelector("#auth-submit").textContent = mode === "login" ? "Login" : "Register";
+        document.querySelector("#auth-toggle").textContent = mode === "login" ? "Create a new account" : "I already have an account";
+        document.querySelector("#username-field").classList.toggle("hidden", mode === "login");
+        document.querySelector("#auth-username").required = mode === "register";
+        document.querySelector("#auth-password").autocomplete = mode === "login" ? "current-password" : "new-password";
+        document.querySelector("#auth-message").textContent = "";
+      }
+      document.querySelector("#auth-toggle").addEventListener("click", () => setAuthMode(state.authMode === "login" ? "register" : "login"));
+      document.querySelector("#auth-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const email = document.querySelector("#auth-email").value;
+        const password = document.querySelector("#auth-password").value;
+        const username = document.querySelector("#auth-username").value;
+        try {
+          const payload = state.authMode === "login" ? { email, password } : { username, email, password };
+          const session = await postJson(`${authApi}/${state.authMode}`, payload);
+          state.session = session;
+          localStorage.setItem("habitSession", JSON.stringify(session));
+          await showApp();
+        } catch (error) {
+          document.querySelector("#auth-message").textContent = error.message;
+        }
+      });
+      applyTheme();
+      if (state.session?.token) showApp(); else showAuth();
+    </script>
+  </body>
+</html>
