@@ -1,136 +1,86 @@
-# Presentation: Habit Tracker App
+# Presentasi: HabitFlow
 
-## Slide 1: Title
+## Slide 1: First Page
 
-Habit Tracker App
+HabitFlow - Aplikasi Habit Tracker.
 
-Backend-focused software architecture project using Flutter/browser UI, NestJS, PostgreSQL, Clean Architecture, and microservice-style boundaries.
+Proyek Software Architecture berbasis NestJS, PostgreSQL, Clean Architecture, dan microservice-style boundaries.
 
-## Slide 2: Team and Responsibility
+## Slide 2: Team
 
-Suggested responsibility split:
-- Backend Architecture: NestJS module structure, services, controllers, repositories.
-- Database and Infrastructure: PostgreSQL schema, repository implementation, environment configuration.
-- Frontend/UI: browser dashboard, responsive layout, dark mode, Indonesian language option.
-- Documentation and Testing: report, presentation, README, unit tests, GitHub submission.
+Pembagian tanggung jawab:
 
-## Slide 3: Problem
+- Backend Architecture: NestJS module, controller, service, repository contract, dan business rules.
+- Database & Infrastructure: schema PostgreSQL, repository implementation, Docker Compose, dan `.env`.
+- Frontend/UI: browser dashboard, responsive mobile layout, dark mode, dan Bahasa Indonesia.
+- Dokumentasi & Testing: README, report, PPT, architecture theory, Jest tests, dan GitHub.
 
-People often start habits but fail to track consistency. This app helps users create habits, mark completions, and monitor progress.
+## Slide 3: Tech Stack
 
-## Slide 4: Objective
+- Backend: NestJS, TypeScript, Node.js.
+- Database: PostgreSQL, node-postgres.
+- Validasi: Zod.
+- Testing: Jest dan ts-jest.
+- Frontend: HTML, CSS, JavaScript, dan Flutter source.
+- DevOps: Docker Compose dan `.env`.
+- Version Control: Git dan GitHub.
 
-Project objectives:
-- Build a backend application using NestJS.
-- Apply a clear software architecture style.
-- Apply design patterns in real source code.
-- Provide backend API, simple frontend, report, presentation, and GitHub repository.
+## Slide 4: Latar Belakang
 
-## Slide 5: Solution
+Banyak orang memulai kebiasaan baru, tetapi sulit menjaga konsistensi karena jadwal, progres, dan riwayat tidak terlihat jelas.
 
-A simple habit tracker with:
-- Regular habits, negative habits, and one-time todo quests.
-- Calendar scheduling with start and end dates.
-- Completion history and date detail popup.
-- Journey templates.
-- Dark mode, Indonesian language option, profile settings, and achievement milestones.
+Poin masalah:
 
-## Slide 6: Technology Stack
+- User perlu melihat habit yang harus dilakukan hari ini.
+- User perlu riwayat yang tetap tersimpan meskipun habit dihapus.
+- User perlu motivasi melalui streak, journey, dan achievement.
 
-- Flutter for simple frontend.
-- NestJS and TypeScript for backend API.
-- PostgreSQL for relational data storage.
-- Jest for backend unit tests.
-- Zod for DTO validation.
+## Slide 5: Solusi
 
-## Slide 7: Architecture Style
+HabitFlow menyediakan:
 
-Microservice-style Clean Architecture with NestJS as the main framework.
+- Habit regular, negative habit, dan one-time todo.
+- Calendar/today page untuk melihat jadwal harian.
+- Journey template untuk langsung memakai paket habit.
+- History calendar dengan popup detail tanggal.
+- Achievement milestone untuk finished habit, perfect days, dan day streaks.
+- Soft delete agar riwayat lama tidak hilang.
 
-## Slide 8: Software Architecture
+## Slide 6: Penjelasan Design Pattern
 
-The backend applies Clean Architecture:
-- Domain layer.
-- Application layer.
-- Infrastructure layer.
-- Presentation layer.
+- Repository Pattern: `HabitRepository` memisahkan business logic dari detail PostgreSQL atau memory storage.
+- Dependency Injection: `src/app.ts` memakai NestJS providers untuk inject repository ke service.
+- Controller Pattern: NestJS controller menerjemahkan HTTP request menjadi service call.
+- DTO / Validation Pattern: Zod schema memvalidasi request sebelum masuk ke service layer.
+- Entity Pattern: `Habit` dan `HabitLog` menjaga aturan domain dasar.
+- Service Layer Pattern: `HabitService` dan `AuthService` menyimpan alur use case dan business rules.
 
-It is one deployable service with microservice-style principles:
-- REST API boundary.
-- Environment-based configuration.
-- Isolated Habit and Auth service modules.
-- Replaceable persistence.
+## Slide 7: Penjelasan Architecture yang Digunakan
 
-## Slide 9: Design Patterns
+Architecture style: microservice-style Clean Architecture.
 
-- Repository Pattern.
-- Dependency Injection.
-- Controller Pattern.
-- DTO and Validation Pattern.
-- Entity Pattern.
-- Service Layer Pattern.
+Layer:
 
-## Slide 10: System Flow
+- Domain: entity dan repository contract di `src/domain`.
+- Application: business rules dan use case di `src/application/services`.
+- Presentation: NestJS controller, filter, dan validator di `src/presentation`.
+- Infrastructure: PostgreSQL dan memory repository di `src/infrastructure`.
 
-Workflow:
-1. User uses browser/Flutter frontend.
-2. Frontend calls NestJS REST API.
-3. NestJS controller validates request body.
-4. Application service applies business rules.
-5. Repository saves or reads data.
-6. API returns JSON response.
+Alasan:
 
-## Slide 11: Database Design
+- Dependency direction jelas: Presentation -> Application -> Domain.
+- NestJS dan PostgreSQL menjadi outer-layer detail.
+- API boundary, bounded capability, konfigurasi mandiri, dan repository abstraction mendukung prinsip microservice.
+- Dapat dipisah menjadi Habit Service, Auth Service, dan Notification Service di masa depan.
 
-Main tables:
-- `habits`
-- `habit_logs`
+## Slide 8: Konklusi
 
-The `habit_logs` table prevents duplicate completions for the same habit and date.
+HabitFlow memenuhi requirement proyek karena:
 
-## Slide 12: API Design
+- Menggunakan NestJS sebagai framework utama.
+- Menerapkan architecture style yang jelas.
+- Mengimplementasikan design pattern.
+- Menyediakan source code GitHub, dokumentasi, report, PPT, testing, dan frontend demo.
 
-Example endpoints:
-- `GET /api/habits`
-- `POST /api/habits`
-- `POST /api/habits/:id/logs`
-- `GET /api/habits/stats`
-- `GET /api/habits/history/day?date=YYYY-MM-DD`
+GitHub: `https://github.com/Jecsen-uni/HabitFlow`
 
-## Slide 13: Project Evaluation
-
-Evaluation:
-- NestJS requirement is satisfied.
-- Architecture style is documented and justified.
-- Patterns are implemented and mapped to source files.
-- Tests verify core business rules.
-- GitHub repository contains source code, README, docs, PPT, and report.
-
-## Slide 14: Benefits of Architecture
-
-- Easier testing.
-- Clear separation of responsibilities.
-- Database implementation can be changed with minimal impact.
-- Business logic is not mixed with HTTP or SQL code.
-- Service modules can later be split into independent microservices.
-
-## Slide 15: Documentation
-
-Submitted documentation:
-- `README.md`: project setup and run guide.
-- `.env.example`: environment variable template and explanation.
-- `docs/documentation.md`: app documentation.
-- `docs/architecture-and-theory.md`: theory explanation and implementation mapping.
-- `docs/project-report.md` and `docs/Project_Report_HabitFlow.docx`: project report.
-
-## Slide 16: Lessons Learned
-
-Lessons learned:
-- Architecture decisions should be checked against the rubric early.
-- Clean Architecture keeps migration from Express-style routing to NestJS controllers manageable.
-- Repository Pattern makes backend logic easier to test.
-- Documentation should map theory directly to code.
-
-## Slide 17: Conclusion
-
-The project demonstrates a practical full-stack habit tracker while focusing on backend architecture, clean code boundaries, and maintainable design patterns.
