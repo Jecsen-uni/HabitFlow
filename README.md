@@ -2,6 +2,12 @@
 
 Backend-focused habit tracker project using NestJS, PostgreSQL, Clean Architecture, microservice-style service boundaries, and a simple Flutter/browser frontend.
 
+GitHub repository:
+
+```text
+https://github.com/Jecsen-uni/HabitFlow
+```
+
 ## Project Structure
 
 ```text
@@ -39,6 +45,23 @@ Project report deliverables:
 docs/project-report.md
 docs/Project_Report_HabitFlow.docx
 ```
+
+Presentation deliverable:
+
+```text
+docs/Habit_Tracker_Presentation.pptx
+docs/presentation.md
+```
+
+## Project Collection Checklist
+
+- GitHub link and README: this repository.
+- Backend project: `src/`, `package.json`, `migrations/`, `.env.example`.
+- Project report: `docs/Project_Report_HabitFlow.docx`.
+- Project presentation: `docs/Habit_Tracker_Presentation.pptx`.
+- Documentation: `docs/documentation.md` and `docs/architecture-and-theory.md`.
+- Frontend demo: `public/index.html`.
+- Flutter source: `mobile/`.
 
 ## Run Backend
 

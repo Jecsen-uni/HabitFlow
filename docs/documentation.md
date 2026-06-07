@@ -20,6 +20,7 @@ Core features:
 - Validation: Zod.
 - Database driver: node-postgres (`pg`).
 - Tests: Jest.
+- Architecture style: microservice-style Clean Architecture.
 
 ## Software Architecture
 
@@ -69,6 +70,10 @@ Auth endpoints:
 - `POST /auth/login`: log in with an existing or new email address.
 - `GET /auth/me`: return demo API metadata.
 
+Operational endpoint:
+
+- `GET /health`: check whether the NestJS backend service is running.
+
 Example create habit body:
 
 ```json
@@ -80,9 +85,22 @@ Example create habit body:
   "targetCount": 1,
   "scheduleDays": [1, 2, 3, 4, 5],
   "startDate": "2026-06-07",
+  "endDate": "2026-07-07",
   "reminderTime": "21:00"
 }
 ```
+
+## Project Collection Checklist
+
+- GitHub repository and README: `https://github.com/Jecsen-uni/HabitFlow`
+- Backend source code: `src/`
+- Environment template: `.env.example`
+- Project report: `docs/Project_Report_HabitFlow.docx`
+- Presentation: `docs/Habit_Tracker_Presentation.pptx`
+- Theory documentation: `docs/architecture-and-theory.md`
+- App documentation: `docs/documentation.md`
+- Frontend demo: `public/index.html`
+- Flutter source: `mobile/`
 
 ## Database Design
 
