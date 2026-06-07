@@ -4,7 +4,7 @@
 
 Habit Tracker App
 
-Backend-focused software architecture project using Flutter/browser UI, Express.js, PostgreSQL, Clean Architecture, and microservice-style boundaries.
+Backend-focused software architecture project using Flutter/browser UI, NestJS, PostgreSQL, Clean Architecture, and microservice-style boundaries.
 
 ## Slide 2: Problem
 
@@ -22,7 +22,7 @@ A simple habit tracker with:
 ## Slide 4: Technology Stack
 
 - Flutter for simple frontend.
-- Express.js and TypeScript for backend API.
+- NestJS and TypeScript for backend API.
 - PostgreSQL for relational data storage.
 - Jest for backend unit tests.
 

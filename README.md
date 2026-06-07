@@ -1,6 +1,6 @@
 # Habit Tracker App
 
-Backend-focused habit tracker project using Express.js, PostgreSQL, Clean Architecture, microservice-style service boundaries, and a simple Flutter/browser frontend.
+Backend-focused habit tracker project using NestJS, PostgreSQL, Clean Architecture, microservice-style service boundaries, and a simple Flutter/browser frontend.
 
 ## Project Structure
 
@@ -9,7 +9,7 @@ src/
   application/      Use cases and services
   domain/           Entities and repository interfaces
   infrastructure/   PostgreSQL implementation
-  presentation/     Express controllers, routes, validators
+  presentation/     NestJS controllers, exception filters, validators
 mobile/             Simple Flutter frontend
 migrations/         PostgreSQL schema
 docs/               Documentation and presentation outline
@@ -23,7 +23,7 @@ The backend is structured as one deployable service with microservice-style boun
 - Clean Architecture layers.
 - Repository Pattern for persistence abstraction.
 - Dependency Injection from `src/app.ts`.
-- Controller Pattern for HTTP request handling.
+- Controller Pattern using NestJS decorators for HTTP request handling.
 - DTO/Validation Pattern with Zod.
 - Entity and Service Layer patterns for business rules.
 
@@ -31,6 +31,13 @@ Full theory explanation and file-by-file implementation mapping:
 
 ```text
 docs/architecture-and-theory.md
+```
+
+Project report deliverables:
+
+```text
+docs/project-report.md
+docs/Project_Report_HabitFlow.docx
 ```
 
 ## Run Backend

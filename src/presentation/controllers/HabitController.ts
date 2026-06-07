@@ -1,4 +1,14 @@
-import { Request, Response } from "express";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query
+} from "@nestjs/common";
 import { HabitService } from "../../application/services/HabitService";
 import {
   createHabitLogSchema,
@@ -6,97 +16,94 @@ import {
   updateHabitSchema
 } from "../validators/habitSchemas";
 
+@Controller("api/habits")
 export class HabitController {
   constructor(private readonly habitService: HabitService) {}
 
-  create = async (req: Request, res: Response) => {
-    const habit = await this.habitService.createHabit(createHabitSchema.parse(req.body));
-    res.status(201).json({ data: habit.toJSON() });
-  };
+  @Post()
+  create(@Body() body: unknown) {
+    const habit = this.habitService.createHabit(createHabitSchema.parse(body));
+    return Promise.resolve(habit).then((result) => ({ data: result.toJSON() }));
+  }
 
-  list = async (_req: Request, res: Response) => {
+  @Get()
+  async list() {
     const habits = await this.habitService.listHabits();
-    res.json({ data: habits.map((habit) => habit.toJSON()) });
-  };
+    return { data: habits.map((habit) => habit.toJSON()) };
+  }
 
-  day = async (req: Request, res: Response) => {
-    const date =
-      typeof req.query.date === "string" && req.query.date.match(/^\d{4}-\d{2}-\d{2}$/)
-        ? req.query.date
-        : new Date().toISOString().slice(0, 10);
-    const habits = await this.habitService.getDay(date);
-    res.json({ data: habits });
-  };
+  @Get("day")
+  async day(@Query("date") date?: string) {
+    const selectedDate = date?.match(/^\d{4}-\d{2}-\d{2}$/) ? date : new Date().toISOString().slice(0, 10);
+    const habits = await this.habitService.getDay(selectedDate);
+    return { data: habits };
+  }
 
-  history = async (req: Request, res: Response) => {
-    const month =
-      typeof req.query.month === "string" && req.query.month.match(/^\d{4}-\d{2}$/)
-        ? req.query.month
-        : new Date().toISOString().slice(0, 7);
-    const history = await this.habitService.getHistory(month);
-    res.json({ data: history });
-  };
+  @Get("history/day")
+  async historyDay(@Query("date") date?: string) {
+    const selectedDate = date?.match(/^\d{4}-\d{2}-\d{2}$/) ? date : new Date().toISOString().slice(0, 10);
+    const history = await this.habitService.getHistoryDay(selectedDate);
+    return { data: history };
+  }
 
-  historyDay = async (req: Request, res: Response) => {
-    const date =
-      typeof req.query.date === "string" && req.query.date.match(/^\d{4}-\d{2}-\d{2}$/)
-        ? req.query.date
-        : new Date().toISOString().slice(0, 10);
-    const history = await this.habitService.getHistoryDay(date);
-    res.json({ data: history });
-  };
+  @Get("history")
+  async history(@Query("month") month?: string) {
+    const selectedMonth = month?.match(/^\d{4}-\d{2}$/) ? month : new Date().toISOString().slice(0, 7);
+    const history = await this.habitService.getHistory(selectedMonth);
+    return { data: history };
+  }
 
-  journeys = async (_req: Request, res: Response) => {
-    res.json({ data: this.habitService.getJourneys() });
-  };
+  @Get("journeys")
+  journeys() {
+    return { data: this.habitService.getJourneys() };
+  }
 
-  applyJourney = async (req: Request, res: Response) => {
-    const habits = await this.habitService.applyJourney(this.param(req.params.id));
-    res.status(201).json({ data: habits.map((habit) => habit.toJSON()) });
-  };
+  @Post("journeys/:id/apply")
+  async applyJourney(@Param("id") id: string) {
+    const habits = await this.habitService.applyJourney(id);
+    return { data: habits.map((habit) => habit.toJSON()) };
+  }
 
-  get = async (req: Request, res: Response) => {
-    const habit = await this.habitService.getHabit(this.param(req.params.id));
-    res.json({ data: habit.toJSON() });
-  };
+  @Get("stats")
+  async stats() {
+    return { data: await this.habitService.getStats() };
+  }
 
-  update = async (req: Request, res: Response) => {
-    const habit = await this.habitService.updateHabit(this.param(req.params.id), updateHabitSchema.parse(req.body));
-    res.json({ data: habit.toJSON() });
-  };
+  @Get(":id")
+  async get(@Param("id") id: string) {
+    const habit = await this.habitService.getHabit(id);
+    return { data: habit.toJSON() };
+  }
 
-  delete = async (req: Request, res: Response) => {
-    const effectiveDate =
-      typeof req.query.effectiveDate === "string" && req.query.effectiveDate.match(/^\d{4}-\d{2}-\d{2}$/)
-        ? req.query.effectiveDate
-        : undefined;
-    await this.habitService.deleteHabit(this.param(req.params.id), effectiveDate);
-    res.status(204).send();
-  };
+  @Patch(":id")
+  async update(@Param("id") id: string, @Body() body: unknown) {
+    const habit = await this.habitService.updateHabit(id, updateHabitSchema.parse(body));
+    return { data: habit.toJSON() };
+  }
 
-  complete = async (req: Request, res: Response) => {
-    const payload = createHabitLogSchema.parse(req.body);
+  @Delete(":id")
+  @HttpCode(204)
+  async delete(@Param("id") id: string, @Query("effectiveDate") effectiveDate?: string) {
+    const selectedDate = effectiveDate?.match(/^\d{4}-\d{2}-\d{2}$/) ? effectiveDate : undefined;
+    await this.habitService.deleteHabit(id, selectedDate);
+  }
+
+  @Post(":id/logs")
+  async complete(@Param("id") id: string, @Body() body: unknown) {
+    const payload = createHabitLogSchema.parse(body);
     const log = await this.habitService.completeHabit({
-      habitId: this.param(req.params.id),
+      habitId: id,
       completedOn: payload.completedOn,
       status: payload.status,
       note: payload.note
     });
 
-    res.status(201).json({ data: log.toJSON() });
-  };
+    return { data: log.toJSON() };
+  }
 
-  logs = async (req: Request, res: Response) => {
-    const logs = await this.habitService.getHabitLogs(this.param(req.params.id));
-    res.json({ data: logs.map((log) => log.toJSON()) });
-  };
-
-  stats = async (_req: Request, res: Response) => {
-    const stats = await this.habitService.getStats();
-    res.json({ data: stats });
-  };
-
-  private param(value: string | string[]): string {
-    return Array.isArray(value) ? value[0] : value;
+  @Get(":id/logs")
+  async logs(@Param("id") id: string) {
+    const logs = await this.habitService.getHabitLogs(id);
+    return { data: logs.map((log) => log.toJSON()) };
   }
 }

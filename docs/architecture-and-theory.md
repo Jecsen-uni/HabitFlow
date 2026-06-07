@@ -4,7 +4,7 @@ This document explains the software architecture, design patterns, and theory im
 
 ## Architecture Summary
 
-HabitFlow is implemented as a backend-focused service using Express.js, TypeScript, PostgreSQL, and a simple frontend. The backend follows Clean Architecture and microservice-style service boundaries.
+HabitFlow is implemented as a backend-focused service using NestJS, TypeScript, PostgreSQL, and a simple frontend. The backend follows Clean Architecture and microservice-style service boundaries.
 
 The current project is one deployable backend service, not multiple independently deployed microservices. It still applies microservice principles: a clear API boundary, isolated business capabilities, environment-based configuration, persistence abstraction, and independently testable service modules. The code is prepared so the Habit and Auth capabilities can be split into separate services later if required.
 
@@ -17,14 +17,14 @@ Presentation -> Application -> Domain
 Infrastructure -> Domain
 ```
 
-The important rule is that the business logic does not depend on Express or PostgreSQL. Frameworks and databases are outer-layer details.
+The important rule is that the business logic does not depend on NestJS or PostgreSQL. Frameworks and databases are outer-layer details.
 
 | Layer | Responsibility | Implemented In |
 | --- | --- | --- |
 | Domain | Core entities and repository contracts | `src/domain/entities/Habit.ts`, `src/domain/entities/HabitLog.ts`, `src/domain/repositories/HabitRepository.ts` |
 | Application | Business use cases and workflows | `src/application/services/HabitService.ts`, `src/application/services/AuthService.ts` |
 | Infrastructure | Database and persistence implementations | `src/infrastructure/repositories/PostgresHabitRepository.ts`, `src/infrastructure/repositories/InMemoryHabitRepository.ts`, `src/infrastructure/database/postgresPool.ts` |
-| Presentation | HTTP routing, controllers, and request validation | `src/presentation/controllers/HabitController.ts`, `src/presentation/controllers/AuthController.ts`, `src/presentation/routes`, `src/presentation/validators` |
+| Presentation | HTTP controllers, exception filters, and request validation | `src/presentation/controllers/HabitController.ts`, `src/presentation/controllers/AuthController.ts`, `src/presentation/controllers/HealthController.ts`, `src/presentation/filters/AppExceptionFilter.ts`, `src/presentation/validators` |
 | Composition Root | Wires concrete dependencies together | `src/app.ts` |
 
 ## Microservice Architecture Principles
@@ -33,12 +33,12 @@ HabitFlow is structured as a microservice-style backend service.
 
 | Microservice Principle | How HabitFlow Applies It | Code Location |
 | --- | --- | --- |
-| API boundary | External clients communicate through REST endpoints only | `src/presentation/routes/habitRoutes.ts`, `src/presentation/routes/authRoutes.ts` |
+| API boundary | External clients communicate through NestJS REST controllers only | `src/presentation/controllers/HabitController.ts`, `src/presentation/controllers/AuthController.ts` |
 | Business capability ownership | Habit tracking and authentication are separated into service modules | `HabitService.ts`, `AuthService.ts` |
 | Database encapsulation | Application logic uses repository contracts instead of direct SQL | `HabitRepository.ts`, `PostgresHabitRepository.ts` |
 | Independent configuration | Runtime behavior is controlled through environment variables | `.env.example`, `src/config/env.ts` |
 | Replaceable infrastructure | Memory storage and PostgreSQL can be swapped without changing use cases | `src/app.ts`, `InMemoryHabitRepository.ts`, `PostgresHabitRepository.ts` |
-| Health endpoint | Service exposes a lightweight operational health check | `src/app.ts` at `GET /health` |
+| Health endpoint | Service exposes a lightweight operational health check | `src/presentation/controllers/HealthController.ts` at `GET /health` |
 | Testable service boundary | Business logic is tested through service/repository boundaries | `tests/HabitService.test.ts` |
 
 If this project were split into multiple microservices, natural service candidates would be:
@@ -91,6 +91,7 @@ Implemented in:
 
 - `src/presentation/controllers/HabitController.ts`
 - `src/presentation/controllers/AuthController.ts`
+- `src/presentation/controllers/HealthController.ts`
 
 Example:
 
@@ -101,6 +102,11 @@ Benefit:
 
 - HTTP-specific code stays out of business logic.
 - Services can be reused by another frontend or API layer.
+
+NestJS implementation detail:
+
+- Controllers use `@Controller`, `@Get`, `@Post`, `@Patch`, and `@Delete` decorators.
+- The NestJS module/composition root is in `src/app.ts`.
 
 ### DTO and Validation Pattern
 
@@ -187,7 +193,7 @@ Environment variables are documented in `.env.example`.
 
 | Variable | Purpose | Example |
 | --- | --- | --- |
-| `PORT` | Express server port | `3000` |
+| `PORT` | NestJS HTTP server port | `3000` |
 | `NODE_ENV` | Runtime mode | `development` |
 | `DATABASE_URL` | Storage backend | `memory` or `postgres://postgres:postgres@localhost:5432/habit_tracker` |
 | `CORS_ORIGIN` | Allowed frontend origins | `*` |
@@ -267,4 +273,3 @@ The project satisfies the requested architecture/design requirement because it d
 - Environment-based configuration.
 - PostgreSQL-ready persistence.
 - Unit tests for business rules.
-

@@ -4,6 +4,7 @@ dist/
 coverage/
 outputs/
 *.log
+group project SA.pptx
 .dart_tool/
 build/
 mobile/.metadata

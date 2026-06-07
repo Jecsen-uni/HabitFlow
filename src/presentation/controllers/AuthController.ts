@@ -1,22 +1,26 @@
-import { Request, Response } from "express";
+import { Body, Controller, Get, Headers, Post } from "@nestjs/common";
 import { AuthService } from "../../application/services/AuthService";
 import { loginAuthSchema, registerAuthSchema } from "../validators/authSchemas";
 
+@Controller("api/auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  register = async (req: Request, res: Response) => {
-    const payload = registerAuthSchema.parse(req.body);
-    res.status(201).json({ data: this.authService.register(payload) });
-  };
+  @Post("register")
+  register(@Body() body: unknown) {
+    const payload = registerAuthSchema.parse(body);
+    return { data: this.authService.register(payload) };
+  }
 
-  login = async (req: Request, res: Response) => {
-    const payload = loginAuthSchema.parse(req.body);
-    res.json({ data: this.authService.login(payload) });
-  };
+  @Post("login")
+  login(@Body() body: unknown) {
+    const payload = loginAuthSchema.parse(body);
+    return { data: this.authService.login(payload) };
+  }
 
-  me = async (req: Request, res: Response) => {
-    const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
-    res.json({ data: this.authService.me(token) });
-  };
+  @Get("me")
+  me(@Headers("authorization") authorization?: string) {
+    const token = authorization?.replace(/^Bearer\s+/i, "");
+    return { data: this.authService.me(token) };
+  }
 }

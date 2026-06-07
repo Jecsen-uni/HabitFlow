@@ -15,7 +15,7 @@ Core features:
 
 ## Technology Stack
 
-- Backend: Express.js, TypeScript, PostgreSQL.
+- Backend: NestJS, TypeScript, PostgreSQL.
 - Frontend: simple browser dashboard and Flutter source.
 - Validation: Zod.
 - Database driver: node-postgres (`pg`).
@@ -28,7 +28,7 @@ The backend uses Clean Architecture with layered boundaries and microservice-sty
 - `domain`: enterprise rules and interfaces. It contains entities and repository contracts.
 - `application`: use cases and business workflows. Services depend on repository interfaces, not PostgreSQL.
 - `infrastructure`: external details such as PostgreSQL connection and SQL repository implementation.
-- `presentation`: Express controllers, routes, and request validators.
+- `presentation`: NestJS controllers, exception filters, and request validators.
 
 Dependency direction points inward:
 
@@ -110,7 +110,7 @@ For PostgreSQL:
 
 ## Theory Explanation
 
-Clean Architecture separates business rules from frameworks. In this project, Express and PostgreSQL are replaceable details. The habit use cases are implemented in `HabitService`, which depends only on the `HabitRepository` interface. This makes the code easier to test because services can be tested with a mock repository.
+Clean Architecture separates business rules from frameworks. In this project, NestJS and PostgreSQL are replaceable outer-layer details. The habit use cases are implemented in `HabitService`, which depends only on the `HabitRepository` interface. This makes the code easier to test because services can be tested with a mock repository.
 
 Repository Pattern hides SQL from the application layer. If the database changes from PostgreSQL to another storage engine, the service layer does not need to change as long as the repository interface remains stable.
 
