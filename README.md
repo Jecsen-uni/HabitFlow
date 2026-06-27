@@ -49,7 +49,7 @@ docs/Project_Report_HabitFlow.docx
 Presentation deliverable:
 
 ```text
-docs/Habit_Tracker_Presentation.pptx
+docs/SA_Project_Presentation.pdf
 docs/presentation.md
 ```
 
@@ -58,7 +58,7 @@ docs/presentation.md
 - GitHub link and README: this repository.
 - Backend project: `src/`, `package.json`, `migrations/`, `.env.example`.
 - Project report: `docs/Project_Report_HabitFlow.docx`.
-- Project presentation: `docs/Habit_Tracker_Presentation.pptx`.
+- Project presentation: `docs/SA_Project_Presentation.pdf`.
 - Documentation: `docs/documentation.md` and `docs/architecture-and-theory.md`.
 - Frontend demo: `public/index.html`.
 - Flutter source: `mobile/`.

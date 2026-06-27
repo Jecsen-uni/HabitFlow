@@ -96,7 +96,7 @@ Example create habit body:
 - Backend source code: `src/`
 - Environment template: `.env.example`
 - Project report: `docs/Project_Report_HabitFlow.docx`
-- Presentation: `docs/Habit_Tracker_Presentation.pptx`
+- Presentation: `docs/SA_Project_Presentation.pdf`
 - Theory documentation: `docs/architecture-and-theory.md`
 - App documentation: `docs/documentation.md`
 - Frontend demo: `public/index.html`
